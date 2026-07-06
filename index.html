@@ -1,92 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reward Hub</title>
-
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://ad.gigapub.tech/script?id=YOUR_GIGAPUB_ID"></script>
-
-<style>
-body{
-    margin:0;
-    font-family: Arial, sans-serif;
-    background:#0f172a;
-    color:white;
-    text-align:center;
-}
-
-.container{
-    padding:20px;
-}
-
-.card{
-    background:#1e293b;
-    border-radius:16px;
-    padding:20px;
-    margin-top:20px;
-    box-shadow:0 10px 20px rgba(0,0,0,0.3);
-}
-
-.title{
-    font-size:24px;
-    font-weight:bold;
-    margin-top:10px;
-}
-
-.balance{
-    font-size:42px;
-    color:#22c55e;
-    margin:10px 0;
-}
-
-button{
-    width:100%;
-    padding:15px;
-    border:none;
-    border-radius:12px;
-    background:#06b6d4;
-    color:white;
-    font-size:18px;
-    margin-top:15px;
-    cursor:pointer;
-}
-
-button:active{
-    transform:scale(0.98);
-}
-
-.small{
-    font-size:13px;
-    opacity:0.7;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-    <div class="title">💰 Reward Hub</div>
-    <div class="small">Watch ads and earn coins</div>
-
-    <div class="card">
-        <div class="small">Your Balance</div>
-        <div class="balance" id="coins">0</div>
-
-        <button onclick="watchAd()">🎬 Watch Ad</button>
-    </div>
-</div>
+<script src="https://ad.gigapub.tech/script?id=7188"></script>
 
 <script>
-let coins = Number(localStorage.getItem("coins") || 0);
-
-function updateUI(){
-    document.getElementById("coins").innerText = coins;
-}
-
-updateUI();
-
 function watchAd(){
 
     if(typeof window.showGiga !== "function"){
@@ -97,6 +11,7 @@ function watchAd(){
     window.showGiga()
     .then(() => {
 
+        // Your reward logic here
         coins += 10;
         localStorage.setItem("coins", coins);
         updateUI();
@@ -104,11 +19,12 @@ function watchAd(){
         alert("You earned 10 coins!");
 
     })
-    .catch(() => {
+    .catch(e => {
+
+        // Handle errors here
+        console.log("Ad error:", e);
         alert("No ads available right now");
+
     });
 }
 </script>
-
-</body>
-</html>
