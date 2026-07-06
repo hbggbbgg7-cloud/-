@@ -5,19 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>RewardHub - Earn Money Watching Ads</title>
 
-    <!-- Telegram Web App SDK — required so Monetag can detect safe
-         visual areas (close button / timer won't overlap Telegram UI) -->
+    <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
 
-    <!-- ============================================================
-         MONETAG SDK
-         ============================================================
-         Replace YOUR_ZONE_ID below with the real Zone ID from your
-         Monetag dashboard (Telegram Mini Apps tab -> "Get SDK").
-         This single tag creates a global function called
-         show_YOUR_ZONE_ID() that the code below calls.
-         ============================================================ -->
-    <script src='//libtl.com/sdk.js' data-zone='11245827' data-sdk='show_11245827'></script>
+    <!-- Adexium widget SDK -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
 
     <style>
         * {
@@ -349,12 +341,12 @@
             </div>
 
             <!-- Watch Ad Buttons -->
-            <button class="btn-primary" id="watchInterstitialBtn" onclick="watchInterstitial()">
-                Watch Rewarded Ad 🎬
+            <button class="btn-primary" id="watchVideoBtn" onclick="watchVideo()">
+                Watch Video Ad 🎬
             </button>
 
-            <button class="btn-primary" id="watchPopupBtn" onclick="watchPopup()">
-                Watch Rewarded Popup 🖼️
+            <button class="btn-primary" id="watchInterstitialBtn" onclick="watchInterstitial()">
+                Watch Interstitial Ad 🖼️
             </button>
 
             <!-- Quick Actions -->
@@ -377,16 +369,25 @@
         // ============================================================
         // CONFIG
         // ============================================================
-        // MUST match the data-zone value used in the <script> tag in
-        // <head>. Monetag builds the global function name from the
-        // zone ID, e.g. zone "123456" -> function show_123456().
-        const MONETAG_ZONE_ID = "11245827";
-        const showAdFn = "show_" + MONETAG_ZONE_ID;
+        // "pushWid" is the real widget ID you already got from Adexium
+        // for the passive push-like format. It runs in the background
+        // via autoMode() and does NOT grant any reward — it's just
+        // ambient monetization, same as the snippet Adexium gave you.
+        //
+        // "interstitialWid" and "videoWid" are PLACEHOLDERS. Go to your
+        // Adexium dashboard, create one widget with adFormat
+        // 'interstitial' and another with adFormat 'video', then paste
+        // each real wid below. Each ad format needs its own widget ID.
+        const ADEXIUM_CONFIG = {
+            pushWid: "6b6fb9fb-5697-4919-9f8d-2e3f9168e00f", // real, given by Adexium
+            interstitialWid: "2aeda7fe-3afd-4ef4-85bd-c3c25cdfc0b6"    // real, used for both reward buttons
+        };
 
         let sdkReady = false;
+        let pushWidget = null;
+        let interstitialWidget = null;
 
-        // Initialize Telegram Web App (needed so Monetag can position
-        // its close button / timer correctly, per Monetag docs)
+        // Initialize Telegram Web App
         let tg = window.Telegram ? window.Telegram.WebApp : null;
         if (tg) {
             tg.expand();
@@ -404,7 +405,7 @@
             lastResetDate: new Date().toDateString()
         };
 
-        // ---------------- SDK readiness check ----------------
+        // ---------------- SDK loading / init ----------------
 
         function setSdkBadge(text, ok) {
             const badge = document.getElementById('sdkStatus');
@@ -418,57 +419,75 @@
             box.textContent = '⚠️ ' + msg + ' No reward is given unless a real ad is actually shown.';
         }
 
-        // The Monetag script tag defines window[showAdFn] asynchronously
-        // once it finishes loading — poll for it instead of relying on
-        // a single onload callback, since the tag itself has no onload
-        // attribute in Monetag's official snippet.
-        let sdkCheckAttempts = 0;
-        function checkSdkReady() {
-            sdkCheckAttempts++;
-            if (typeof window[showAdFn] === 'function') {
-                sdkReady = true;
-                setSdkBadge('ready', true);
-                console.log('[RewardHub] Monetag SDK ready:', showAdFn);
-                startInAppInterstitial();
-                return;
-            }
-            if (sdkCheckAttempts >= 20) { // ~10s of polling
-                console.error('[RewardHub] Monetag SDK function not found:', showAdFn);
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.AdexiumWidget !== 'function') {
+                console.error('[RewardHub] AdexiumWidget script not loaded');
                 setSdkBadge('not detected', false);
-                showAdsUnavailableNotice('Ad service not detected — check your Zone ID.');
+                showAdsUnavailableNotice('Ad service not detected.');
                 return;
             }
-            setTimeout(checkSdkReady, 500);
-        }
-        checkSdkReady();
 
-        // ---------------- In-App Interstitial (passive, no reward) ----------------
-        // Shows automatically in the background according to the timing
-        // rules below. No user click needed and NO reward is granted for
-        // this format — it's pure passive monetization while the user
-        // is active in the app, separate from the two rewarded buttons.
-        //
-        // frequency: 2   -> show up to 2 ads
-        // capping: 0.1   -> within a 0.1 hour (6 minute) window
-        // interval: 30   -> at least 30 seconds between the two ads
-        // timeout: 5     -> wait 5 seconds after app open before the first one
-        // everyPage: false -> keep the same session when navigating (don't reset)
-        function startInAppInterstitial() {
-            try {
-                window[showAdFn]({
-                    type: 'inApp',
-                    inAppSettings: {
-                        frequency: 2,
-                        capping: 0.1,
-                        interval: 30,
-                        timeout: 5,
-                        everyPage: false
-                    }
-                });
-                console.log('[RewardHub] In-App Interstitial configured');
-            } catch (e) {
-                console.warn('[RewardHub] Could not start In-App Interstitial:', e);
-            }
+            // ---- Passive background widget (push-like, autoMode) ----
+            // This is exactly what Adexium's own snippet does: shows
+            // ambient push-style ads on its own schedule, no button,
+            // no reward.
+            pushWidget = new AdexiumWidget({
+                wid: ADEXIUM_CONFIG.pushWid,
+                adFormat: 'push-like'
+            });
+            pushWidget.autoMode();
+
+            // ---- Rewarded interstitial widget (manual, button-driven) ----
+            // Used for BOTH reward buttons, since Adexium's dashboard
+            // doesn't currently offer a separate 'video' widget format —
+            // only 'interstitial' and 'push-like' are available.
+            interstitialWidget = new AdexiumWidget({
+                wid: ADEXIUM_CONFIG.interstitialWid,
+                adFormat: 'interstitial'
+            });
+            wireRewardedWidget(interstitialWidget);
+
+            sdkReady = true;
+            setSdkBadge('ready', true);
+            console.log('[RewardHub] Adexium widgets initialized');
+        });
+
+        // Since one widget instance now serves two buttons, we track
+        // which button made the current request so only that button's
+        // UI resets, and so a reward is only ever granted once per
+        // completed ad (not once per button that happens to share the
+        // widget).
+        let activeBtn = null;
+        let activeLabel = null;
+
+        function wireRewardedWidget(widget) {
+            widget.on('adReceived', (ad) => {
+                widget.displayAd(ad);
+            });
+
+            widget.on('noAdFound', () => {
+                console.warn('[RewardHub] noAdFound');
+                showToast('No ad available right now — try again later.');
+                if (activeBtn) resetButton(activeBtn, activeLabel);
+            });
+
+            widget.on('adPlaybackCompleted', () => {
+                console.log('[RewardHub] adPlaybackCompleted');
+                const reward = (Math.random() * 0.05 + 0.01).toFixed(3);
+                addReward(parseFloat(reward));
+                if (activeBtn) resetButton(activeBtn, activeLabel);
+            });
+
+            // If the user closes the ad without it completing, no
+            // reward is given — just restore the button.
+            widget.on('adClosed', () => {
+                if (activeBtn) resetButton(activeBtn, activeLabel);
+            });
+        }
+
+        function resetButton(btn, label) {
+            btn.disabled = false;
+            btn.textContent = label;
         }
 
         // ---------------- User data ----------------
@@ -523,60 +542,28 @@
             }
         }
 
-        // ---------------- Ad triggers ----------------
-        // Monetag's show_XXX() returns a Promise that resolves with
-        // { reward_event_type: 'valued' | 'not_valued', estimated_price }
-        // A reward is only granted when reward_event_type === 'valued'
-        // (i.e. a real, monetized ad impression actually happened).
-        // If the SDK isn't ready, or the ad errors out / has no fill,
-        // the user gets a clear message and NO reward.
+        // ---------------- Ad triggers (buttons) ----------------
+
+        function watchVideo() {
+            const btn = document.getElementById('watchVideoBtn');
+            requestRewardedAd(btn, 'Watch Video Ad 🎬');
+        }
 
         function watchInterstitial() {
             const btn = document.getElementById('watchInterstitialBtn');
-            runAd(btn, 'Watch Rewarded Ad 🎬', {}); // default = Rewarded Interstitial
+            requestRewardedAd(btn, 'Watch Interstitial Ad 🖼️');
         }
 
-        function watchPopup() {
-            const btn = document.getElementById('watchPopupBtn');
-            runAd(btn, 'Watch Rewarded Popup 🖼️', 'pop'); // 'pop' = Rewarded Popup
-        }
-
-        function runAd(btn, originalLabel, options) {
-            if (!sdkReady || typeof window[showAdFn] !== 'function') {
-                console.warn('[RewardHub] SDK not ready — no ad can be shown, no reward given');
+        function requestRewardedAd(btn, originalLabel) {
+            if (!sdkReady || !interstitialWidget) {
                 showToast('Ads are not available right now. Please try again shortly.');
                 return;
             }
-
+            activeBtn = btn;
+            activeLabel = originalLabel;
             btn.disabled = true;
             btn.textContent = 'Loading ad...';
-
-            window[showAdFn](options)
-                .then(function(result) {
-                    console.log('[RewardHub] Ad finished:', result);
-                    // Monetag's promise resolves once the ad has actually
-                    // been watched/completed. Some responses include a
-                    // { reward_event_type: 'valued' | 'not_valued' } object;
-                    // if that field is present we honor it, but a plain
-                    // resolve() with no payload (as shown in Monetag's own
-                    // snippet) still counts as a completed, real ad.
-                    const notValued = result && result.reward_event_type === 'not_valued';
-                    if (!notValued) {
-                        const reward = (Math.random() * 0.05 + 0.01).toFixed(3);
-                        addReward(parseFloat(reward));
-                    } else {
-                        console.warn('[RewardHub] Ad shown but not valued — no reward');
-                        showToast('Ad was skipped — no reward this time.');
-                    }
-                })
-                .catch(function(err) {
-                    console.error('[RewardHub] Ad error / no fill:', err);
-                    showToast('No ad available right now — try again later.');
-                })
-                .finally(function() {
-                    btn.disabled = false;
-                    btn.textContent = originalLabel;
-                });
+            interstitialWidget.requestAd('interstitial');
         }
 
         function addReward(amount) {
