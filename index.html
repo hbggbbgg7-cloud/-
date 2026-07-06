@@ -17,7 +17,7 @@
          This single tag creates a global function called
          show_YOUR_ZONE_ID() that the code below calls.
          ============================================================ -->
-    <script src="//libtl.com/sdk.js" data-zone="YOUR_ZONE_ID" data-sdk="show_YOUR_ZONE_ID"></script>
+    <script src='//libtl.com/sdk.js' data-zone='11245827' data-sdk='show_11245827'></script>
 
     <style>
         * {
@@ -380,7 +380,7 @@
         // MUST match the data-zone value used in the <script> tag in
         // <head>. Monetag builds the global function name from the
         // zone ID, e.g. zone "123456" -> function show_123456().
-        const MONETAG_ZONE_ID = "YOUR_ZONE_ID";
+        const MONETAG_ZONE_ID = "11245827";
         const showAdFn = "show_" + MONETAG_ZONE_ID;
 
         let sdkReady = false;
@@ -429,6 +429,7 @@
                 sdkReady = true;
                 setSdkBadge('ready', true);
                 console.log('[RewardHub] Monetag SDK ready:', showAdFn);
+                startInAppInterstitial();
                 return;
             }
             if (sdkCheckAttempts >= 20) { // ~10s of polling
@@ -440,6 +441,35 @@
             setTimeout(checkSdkReady, 500);
         }
         checkSdkReady();
+
+        // ---------------- In-App Interstitial (passive, no reward) ----------------
+        // Shows automatically in the background according to the timing
+        // rules below. No user click needed and NO reward is granted for
+        // this format — it's pure passive monetization while the user
+        // is active in the app, separate from the two rewarded buttons.
+        //
+        // frequency: 2   -> show up to 2 ads
+        // capping: 0.1   -> within a 0.1 hour (6 minute) window
+        // interval: 30   -> at least 30 seconds between the two ads
+        // timeout: 5     -> wait 5 seconds after app open before the first one
+        // everyPage: false -> keep the same session when navigating (don't reset)
+        function startInAppInterstitial() {
+            try {
+                window[showAdFn]({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 2,
+                        capping: 0.1,
+                        interval: 30,
+                        timeout: 5,
+                        everyPage: false
+                    }
+                });
+                console.log('[RewardHub] In-App Interstitial configured');
+            } catch (e) {
+                console.warn('[RewardHub] Could not start In-App Interstitial:', e);
+            }
+        }
 
         // ---------------- User data ----------------
 
@@ -524,12 +554,14 @@
             window[showAdFn](options)
                 .then(function(result) {
                     console.log('[RewardHub] Ad finished:', result);
-                    if (result && result.reward_event_type === 'valued') {
-                        // Real, monetized impression — grant reward.
-                        // estimated_price (if present) reflects Monetag's
-                        // own revenue estimate for this impression; here
-                        // we still use our own fixed payout range so the
-                        // user-facing reward stays predictable.
+                    // Monetag's promise resolves once the ad has actually
+                    // been watched/completed. Some responses include a
+                    // { reward_event_type: 'valued' | 'not_valued' } object;
+                    // if that field is present we honor it, but a plain
+                    // resolve() with no payload (as shown in Monetag's own
+                    // snippet) still counts as a completed, real ad.
+                    const notValued = result && result.reward_event_type === 'not_valued';
+                    if (!notValued) {
                         const reward = (Math.random() * 0.05 + 0.01).toFixed(3);
                         addReward(parseFloat(reward));
                     } else {
