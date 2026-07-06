@@ -5,185 +5,132 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coin Rewards Pro</title>
 
+<!-- Monetag SDK -->
 <script src="//libtl.com/sdk.js"
         data-zone="11245827"
         data-sdk="show_11245827"></script>
 
+<!-- Adexora SDK -->
+<script src="https://adexora.com/cdn/ads.js?id=2126"></script>
+
 <style>
-*{
-    box-sizing:border-box;
-}
-
-body{
-    margin:0;
-    padding:20px;
-    font-family:tahoma,sans-serif;
-    background:#0f172a;
-    color:white;
-}
-
-.container{
-    max-width:500px;
-    margin:auto;
-}
-
-.header{
-    text-align:center;
-    margin-bottom:20px;
-}
-
-.balance-card{
-    background:#1e293b;
-    border-radius:20px;
-    padding:25px;
-    text-align:center;
-    margin-bottom:20px;
-}
-
-.balance{
-    font-size:40px;
-    font-weight:bold;
-}
-
-.stats{
-    margin-top:10px;
-    color:#cbd5e1;
-}
-
-.ad-card{
-    background:#1e293b;
-    border-radius:20px;
-    padding:20px;
-    margin-bottom:15px;
-}
-
-.btn{
-    width:100%;
-    border:none;
-    border-radius:14px;
-    padding:16px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-}
-
-.reward{
-    background:#2563eb;
-    color:white;
-}
-
-.popup{
-    background:#16a34a;
-    color:white;
-}
-
-.footer{
-    text-align:center;
-    margin-top:20px;
-    color:#94a3b8;
-}
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;color:white}
+.container{max-width:500px;margin:auto}
+.header{text-align:center;margin-bottom:20px}
+.balance-card,.ad-card{background:#1e293b;border-radius:20px;padding:20px;margin-bottom:15px}
+.balance{text-align:center;font-size:40px;font-weight:bold}
+.stats{text-align:center;margin-top:10px;color:#cbd5e1}
+.btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:18px;font-weight:bold;cursor:pointer;transition:0.2s}
+.btn:hover{opacity:0.85}
+.reward{background:#2563eb;color:white}
+.popup{background:#16a34a;color:white}
+.adexora{background:#ea580c;color:white}
+.footer{text-align:center;margin-top:20px;color:#94a3b8}
 </style>
 </head>
 <body>
-
 <div class="container">
-
-<div class="header">
-<h1>💰 Coin Rewards</h1>
-</div>
+<div class="header"><h1>💰 Coin Rewards</h1></div>
 
 <div class="balance-card">
-<div class="balance">
-🪙 <span id="coins">0</span>
-</div>
-
-<div class="stats">
-تبلیغات دیده شده:
-<span id="adsSeen">0</span>
-</div>
+<div class="balance">🪙 <span id="coins">0</span></div>
+<div class="stats">تبلیغات دیده شده: <span id="adsSeen">0</span></div>
 </div>
 
 <div class="ad-card">
-<h3>🎥 تبلیغ جایزه‌ای</h3>
+<h3>🎥 تبلیغ جایزه‌ای Monetag</h3>
 <p>پاداش: 10 سکه</p>
-<button class="btn reward" onclick="watchRewardedAd()">
-مشاهده تبلیغ
-</button>
+<button class="btn reward" onclick="watchRewardedAd()">مشاهده تبلیغ</button>
 </div>
 
 <div class="ad-card">
-<h3>🪟 تبلیغ پاپ‌آپ</h3>
+<h3>🪟 تبلیغ پاپ‌آپ Monetag</h3>
 <p>پاداش: 5 سکه</p>
-<button class="btn popup" onclick="watchPopupAd()">
-نمایش پاپ‌آپ
-</button>
+<button class="btn popup" onclick="watchPopupAd()">نمایش پاپ‌آپ</button>
 </div>
 
-<div class="footer">
-Powered by Monetag
+<div class="ad-card">
+<h3>🔥 تبلیغ Adexora</h3>
+<p>پاداش: 8 سکه</p>
+<button class="btn adexora" onclick="watchAdexoraAd()">مشاهده تبلیغ Adexora</button>
 </div>
 
+<div class="footer">Monetag + Adexora</div>
 </div>
 
 <script>
-
+// === داده‌ها ===
 let coins = Number(localStorage.getItem("coins")) || 0;
 let adsSeen = Number(localStorage.getItem("adsSeen")) || 0;
 
+// === ذخیره و نمایش ===
 function saveData(){
-    localStorage.setItem("coins", coins);
-    localStorage.setItem("adsSeen", adsSeen);
+ localStorage.setItem("coins", coins);
+ localStorage.setItem("adsSeen", adsSeen);
 }
-
 function updateUI(){
-    document.getElementById("coins").innerText = coins;
-    document.getElementById("adsSeen").innerText = adsSeen;
+ document.getElementById("coins").innerText = coins;
+ document.getElementById("adsSeen").innerText = adsSeen;
 }
-
-function reward(amount){
-    coins += amount;
-    adsSeen++;
-    saveData();
-    updateUI();
+function addReward(amount){
+ coins += amount;
+ adsSeen++;
+ saveData();
+ updateUI();
 }
-
 updateUI();
 
+// === توابع مربوط به تبلیغات ===
+
+// 1. تبلیغ جایزه‌ای Monetag (rewarded)
 function watchRewardedAd(){
-
+  if (typeof show_11245827 === "function") {
     show_11245827()
-    .then(() => {
-
-        reward(10);
-        alert("10 سکه دریافت کردی 🎉");
-
-    })
-    .catch(() => {
-
-        alert("تبلیغ نمایش داده نشد");
-
-    });
-
+      .then(() => {
+        addReward(10);
+        alert("✅ 10 سکه دریافت کردی 🎉");
+      })
+      .catch(() => {
+        alert("❌ تبلیغ نمایش داده نشد");
+      });
+  } else {
+    alert("❌ SDK Monetag بارگذاری نشده");
+  }
 }
 
+// 2. تبلیغ پاپ‌آپ Monetag (با پارامتر 'pop')
 function watchPopupAd(){
-
+  if (typeof show_11245827 === "function") {
     show_11245827('pop')
-    .then(() => {
-
-        reward(5);
-        alert("5 سکه دریافت کردی 🎉");
-
-    })
-    .catch(() => {
-
-        alert("خطا در نمایش تبلیغ");
-
-    });
-
+      .then(() => {
+        addReward(5);
+        alert("✅ 5 سکه دریافت کردی 🎉");
+      })
+      .catch(() => {
+        alert("❌ خطا در نمایش تبلیغ پاپ‌آپ");
+      });
+  } else {
+    alert("❌ SDK Monetag بارگذاری نشده");
+  }
 }
 
+// 3. تبلیغ Adexora
+function watchAdexoraAd(){
+  if (typeof window.showAdexora === "function") {
+    window.showAdexora()
+      .then(() => {
+        addReward(8);
+        alert("✅ 8 سکه دریافت کردی 🎉");
+      })
+      .catch((e) => {
+        console.error(e);
+        alert("❌ خطا در نمایش تبلیغ Adexora");
+      });
+  } else {
+    alert("❌ SDK Adexora بارگذاری نشده");
+  }
+}
 </script>
-
 </body>
 </html>
