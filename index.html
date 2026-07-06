@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reward App</title>
+<title>Coin Rewards</title>
 
 <script src="//libtl.com/sdk.js"
         data-zone="11245827"
@@ -11,56 +11,77 @@
 
 <style>
 body{
-    font-family:tahoma;
-    text-align:center;
-    background:#f5f5f5;
+    margin:0;
     padding:20px;
+    font-family:tahoma,sans-serif;
+    background:#f4f4f4;
+    text-align:center;
 }
 
 .card{
-    max-width:400px;
+    max-width:450px;
     margin:auto;
-    background:white;
+    background:#fff;
     border-radius:15px;
     padding:20px;
-    box-shadow:0 0 10px rgba(0,0,0,.1);
+    box-shadow:0 0 15px rgba(0,0,0,.1);
 }
 
 .balance{
-    font-size:28px;
+    font-size:32px;
     margin:20px 0;
+    font-weight:bold;
 }
 
-button{
+.btn{
+    width:100%;
+    padding:15px;
+    margin:10px 0;
     border:none;
-    background:#0088cc;
-    color:white;
-    padding:15px 25px;
     border-radius:10px;
     font-size:18px;
     cursor:pointer;
 }
 
-button:disabled{
-    opacity:.5;
+.reward{
+    background:#0088cc;
+    color:white;
+}
+
+.popup{
+    background:#28a745;
+    color:white;
+}
+
+.info{
+    margin-top:15px;
+    color:#666;
 }
 </style>
 </head>
-
 <body>
 
 <div class="card">
-    <h2>کسب سکه</h2>
 
-    <div class="balance">
-        🪙 <span id="coins">0</span>
-    </div>
+<h2>💰 کسب سکه</h2>
 
-    <button onclick="watchAd()">
-        مشاهده تبلیغ
-    </button>
+<div class="balance">
+🪙 <span id="coins">0</span>
+</div>
 
-    <p>هر تبلیغ = 10 سکه</p>
+<button class="btn reward" onclick="watchRewardedAd()">
+🎥 مشاهده تبلیغ جایزه‌ای (+10)
+</button>
+
+<button class="btn popup" onclick="watchPopupAd()">
+🪟 مشاهده تبلیغ پاپ‌آپ (+5)
+</button>
+
+<div class="info">
+هر تبلیغ جایزه‌ای = 10 سکه<br>
+هر تبلیغ پاپ‌آپ = 5 سکه
+</div>
+
 </div>
 
 <script>
@@ -68,30 +89,52 @@ button:disabled{
 let coins = Number(localStorage.getItem("coins")) || 0;
 
 function updateUI(){
-    document.getElementById("coins").textContent = coins;
+    document.getElementById("coins").innerText = coins;
+}
+
+function saveCoins(){
+    localStorage.setItem("coins", coins);
+}
+
+function addCoins(amount){
+    coins += amount;
+    saveCoins();
+    updateUI();
 }
 
 updateUI();
 
-function addCoins(amount){
-    coins += amount;
-    localStorage.setItem("coins", coins);
-    updateUI();
-}
-
-function watchAd(){
+function watchRewardedAd(){
 
     show_11245827()
     .then(() => {
 
         addCoins(10);
 
-        alert("10 سکه دریافت کردی!");
+        alert("10 سکه دریافت کردی 🎉");
 
     })
     .catch(() => {
 
         alert("تبلیغ کامل مشاهده نشد");
+
+    });
+
+}
+
+function watchPopupAd(){
+
+    show_11245827('pop')
+    .then(() => {
+
+        addCoins(5);
+
+        alert("5 سکه دریافت کردی 🎉");
+
+    })
+    .catch(() => {
+
+        alert("خطا در نمایش تبلیغ");
 
     });
 
