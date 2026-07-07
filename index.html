@@ -1,584 +1,136 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>چرخ شانس - Giga Pub</title>
-    
-    <style>
-        /* همه استایل‌های قبلی رو همینجا کپی کن */
-        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700;900&display=swap');
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Vazirmatn', sans-serif;
-            background: linear-gradient(180deg, #0a0a1a 0%, #1a1040 100%);
-            min-height: 100vh;
-            color: #fff;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 420px;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .header {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .balance-badge {
-            background: rgba(255,215,0,0.15);
-            border: 1px solid rgba(255,215,0,0.3);
-            border-radius: 25px;
-            padding: 8px 16px;
-            font-weight: 700;
-            color: #ffd700;
-            font-size: 14px;
-        }
-        .ad-badge {
-            background: rgba(255,71,87,0.2);
-            border: 1px solid rgba(255,71,87,0.4);
-            border-radius: 25px;
-            padding: 8px 16px;
-            font-weight: 700;
-            font-size: 14px;
-        }
-        .title {
-            font-size: 24px;
-            font-weight: 900;
-            margin-bottom: 5px;
-            text-align: center;
-            color: #ffd700;
-        }
-        .subtitle {
-            font-size: 12px;
-            opacity: 0.6;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .wheel-container {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            margin: 10px auto 25px;
-        }
-        .wheel {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 4px solid #ffd700;
-            position: relative;
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-            box-shadow: 0 0 30px rgba(255,215,0,0.2);
-        }
-        .wheel-segment {
-            position: absolute;
-            width: 50%;
-            height: 50%;
-            transform-origin: 100% 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 14px;
-            color: #fff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        .wheel-pointer {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 25px solid #ffd700;
-            filter: drop-shadow(0 3px 6px rgba(255,215,0,0.5));
-            z-index: 5;
-        }
-        .wheel-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            background: #ffd700;
-            border-radius: 50%;
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            box-shadow: 0 0 20px rgba(255,215,0,0.5);
-        }
-        .ticket-section {
-            width: 100%;
-            background: rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .ticket-count {
-            font-size: 48px;
-            font-weight: 900;
-            color: #ffd700;
-            margin: 5px 0;
-        }
-        .ticket-label {
-            font-size: 14px;
-            opacity: 0.7;
-            margin-bottom: 10px;
-        }
-        .ticket-icons {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin: 10px 0;
-        }
-        .ticket-icon {
-            width: 22px;
-            height: 30px;
-            background: linear-gradient(180deg, #ffd700, #b8960f);
-            border-radius: 3px;
-            font-size: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000;
-            font-weight: 900;
-        }
-        .ticket-icon.used {
-            opacity: 0.3;
-            filter: grayscale(100%);
-        }
-        .ticket-progress {
-            width: 100%;
-            height: 6px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        .ticket-progress-fill {
-            height: 100%;
-            background: #ffd700;
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
-        .buttons {
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 15px;
-            border: none;
-            font-family: 'Vazirmatn', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #fff;
-        }
-        .btn:active { transform: scale(0.96); }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; filter: grayscale(30%); }
-        .btn-ad {
-            background: linear-gradient(135deg, #ff6348, #ff4757);
-            box-shadow: 0 8px 25px rgba(255,71,87,0.3);
-        }
-        .btn-spin {
-            background: linear-gradient(135deg, #ffd700, #f39c12);
-            box-shadow: 0 8px 25px rgba(243,156,18,0.4);
-            color: #000;
-            font-size: 18px;
-        }
-        .btn-withdraw {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal.show { display: flex; }
-        .modal-content {
-            background: #1a1040;
-            border: 1px solid #ffd700;
-            border-radius: 20px;
-            padding: 30px 20px;
-            text-align: center;
-            width: 90%;
-            max-width: 320px;
-        }
-        .modal-content h2 { color: #ffd700; margin-bottom: 15px; }
-        .modal-content .prize { font-size: 48px; font-weight: 900; color: #ffd700; margin: 15px 0; }
-        .modal-content button {
-            margin-top: 15px;
-            padding: 12px 30px;
-            border-radius: 10px;
-            border: none;
-            font-family: 'Vazirmatn', sans-serif;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            background: #ffd700;
-            color: #000;
-        }
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #1a1040;
-            border: 1px solid rgba(255,215,0,0.5);
-            padding: 12px 20px;
-            border-radius: 12px;
-            z-index: 200;
-            font-weight: 700;
-            font-size: 14px;
-            animation: slideIn 0.3s ease;
-            text-align: center;
-        }
-        @keyframes slideIn {
-            from { transform: translateX(-50%) translateY(-100%); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-        .daily-limit {
-            text-align: center;
-            padding: 15px;
-            background: rgba(255,71,87,0.1);
-            border-radius: 15px;
-            border: 1px dashed #ff4757;
-            margin-top: 10px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coin Rewards Pro</title>
+
+<!-- Monetag SDK -->
+<script src="//libtl.com/sdk.js"
+        data-zone="11245827"
+        data-sdk="show_11245827"></script>
+
+<!-- Adexora SDK -->
+<script src="https://adexora.com/cdn/ads.js?id=2126"></script>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;color:white}
+.container{max-width:500px;margin:auto}
+.header{text-align:center;margin-bottom:20px}
+.balance-card,.ad-card{background:#1e293b;border-radius:20px;padding:20px;margin-bottom:15px}
+.balance{text-align:center;font-size:40px;font-weight:bold}
+.stats{text-align:center;margin-top:10px;color:#cbd5e1}
+.btn{width:100%;border:none;border-radius:14px;padding:16px;font-size:18px;font-weight:bold;cursor:pointer;transition:0.2s}
+.btn:hover{opacity:0.85}
+.reward{background:#2563eb;color:white}
+.popup{background:#16a34a;color:white}
+.adexora{background:#ea580c;color:white}
+.footer{text-align:center;margin-top:20px;color:#94a3b8}
+</style>
 </head>
 <body>
+<div class="container">
+<div class="header"><h1>💰 Coin Rewards</h1></div>
 
-    <div class="container">
-        <div class="header">
-            <div class="balance-badge">🪙 <span id="balanceDisplay">0</span></div>
-            <div class="ad-badge">📺 <span id="adsWatched">0</span>/100</div>
-        </div>
+<div class="balance-card">
+<div class="balance">🪙 <span id="coins">0</span></div>
+<div class="stats">تبلیغات دیده شده: <span id="adsSeen">0</span></div>
+</div>
 
-        <div class="title">🎰 چرخ شانس</div>
-        <div class="subtitle">تبلیغ ببین، بلیط بگیر، بچرخون!</div>
+<div class="ad-card">
+<h3>🎥 تبلیغ جایزه‌ای Monetag</h3>
+<p>پاداش: 10 سکه</p>
+<button class="btn reward" onclick="watchRewardedAd()">مشاهده تبلیغ</button>
+</div>
 
-        <div class="wheel-container">
-            <div class="wheel-pointer"></div>
-            <div class="wheel" id="wheel">
-                <div class="wheel-center">🎰</div>
-            </div>
-        </div>
+<div class="ad-card">
+<h3>🪟 تبلیغ پاپ‌آپ Monetag</h3>
+<p>پاداش: 5 سکه</p>
+<button class="btn popup" onclick="watchPopupAd()">نمایش پاپ‌آپ</button>
+</div>
 
-        <div class="ticket-section">
-            <div class="ticket-label">🎫 بلیط‌های تو</div>
-            <div class="ticket-count"><span id="ticketCount">0</span></div>
-            <div class="ticket-label" id="spinInfo">۱۰ بلیط = ۱ چرخوندن</div>
-            <div class="ticket-progress">
-                <div class="ticket-progress-fill" id="ticketProgress" style="width: 0%"></div>
-            </div>
-            <div class="ticket-icons" id="ticketIcons"></div>
-        </div>
+<div class="ad-card">
+<h3>🔥 تبلیغ Adexora</h3>
+<p>پاداش: 8 سکه</p>
+<button class="btn adexora" onclick="watchAdexoraAd()">مشاهده تبلیغ Adexora</button>
+</div>
 
-        <div class="buttons">
-            <button class="btn btn-ad" id="btnWatchAd" onclick="watchAd()">
-                📺 دیدن تبلیغ + دریافت بلیط
-            </button>
-            <button class="btn btn-spin" id="btnSpin" onclick="spinWheel()" disabled>
-                🎰 چرخوندن چرخ (۱۰ بلیط)
-            </button>
-            <button class="btn btn-withdraw" onclick="openWithdraw()">
-                💰 برداشت سکه
-            </button>
-        </div>
+<div class="footer">Monetag + Adexora</div>
+</div>
 
-        <div class="daily-limit" id="dailyLimitMsg" style="display:none;">
-            🎉 سقف ۱۰۰ تبلیغ امروز پر شد! فردا دوباره بیا
-        </div>
-    </div>
+<script>
+// === داده‌ها ===
+let coins = Number(localStorage.getItem("coins")) || 0;
+let adsSeen = Number(localStorage.getItem("adsSeen")) || 0;
 
-    <!-- مودال جایزه -->
-    <div class="modal" id="prizeModal">
-        <div class="modal-content">
-            <h2>🎉 جایزه!</h2>
-            <div style="font-size:60px;">🪙</div>
-            <div class="prize" id="prizeAmount">0</div>
-            <div style="opacity:0.7;">سکه</div>
-            <button onclick="closePrizeModal()">👌 دریافت کردم</button>
-        </div>
-    </div>
+// === ذخیره و نمایش ===
+function saveData(){
+ localStorage.setItem("coins", coins);
+ localStorage.setItem("adsSeen", adsSeen);
+}
+function updateUI(){
+ document.getElementById("coins").innerText = coins;
+ document.getElementById("adsSeen").innerText = adsSeen;
+}
+function addReward(amount){
+ coins += amount;
+ adsSeen++;
+ saveData();
+ updateUI();
+}
+updateUI();
 
-    <!-- مودال برداشت -->
-    <div class="modal" id="withdrawModal">
-        <div class="modal-content">
-            <h2>💰 برداشت</h2>
-            <p style="opacity:0.7;">حداقل: ۱۰۰۰ سکه</p>
-            <p>موجودی: <strong id="withdrawBalance">0</strong></p>
-            <input type="number" placeholder="مقدار سکه" id="withdrawAmount" 
-                   style="width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.05);color:#fff;font-family:'Vazirmatn';text-align:center;margin:10px 0;">
-            <button onclick="submitWithdraw()" style="width:100%;padding:12px;border-radius:10px;border:none;background:#00b894;color:#fff;font-family:'Vazirmatn';font-weight:700;cursor:pointer;">ثبت درخواست</button>
-            <button onclick="document.getElementById('withdrawModal').classList.remove('show')" 
-                    style="width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-family:'Vazirmatn';margin-top:10px;cursor:pointer;">بستن</button>
-        </div>
-    </div>
+// === توابع مربوط به تبلیغات ===
 
-    <!-- =============== Giga Pub =============== -->
-    <script src="https://ad.gigapub.tech/script?id=7188"></script>
-    
-    <script>
-        // ==================== کانفیگ ====================
-        const DAILY_AD_LIMIT = 100;
-        const TICKETS_PER_SPIN = 10;
-        
-        const WHEEL_PRIZES = [10, 25, 50, 100, 200, 500, 1000, 5000];
-        const WHEEL_COLORS = ['#e74c3c','#e67e22','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e91e63'];
-        
-        // ==================== state ====================
-        let state = {
-            balance: parseInt(localStorage.getItem('wheel_balance') || '500'),
-            tickets: parseInt(localStorage.getItem('wheel_tickets') || '0'),
-            adsWatched: parseInt(localStorage.getItem('wheel_ads') || '0'),
-            lastDate: localStorage.getItem('wheel_date'),
-            isSpinning: false
-        };
-        
-        // ==================== ریست روزانه ====================
-        const today = new Date().toDateString();
-        if (state.lastDate !== today) {
-            state.adsWatched = 0;
-            state.lastDate = today;
-            saveState();
-        }
-        
-        // ==================== ساخت چرخ ====================
-        function buildWheel() {
-            const wheel = document.getElementById('wheel');
-            const segmentAngle = 360 / WHEEL_PRIZES.length;
-            
-            wheel.innerHTML = '<div class="wheel-center">🎰</div>';
-            
-            WHEEL_PRIZES.forEach((prize, i) => {
-                const segment = document.createElement('div');
-                segment.className = 'wheel-segment';
-                const rotate = i * segmentAngle - 90 + segmentAngle/2;
-                segment.style.transform = `rotate(${rotate}deg) skewY(${90 - segmentAngle}deg)`;
-                segment.style.background = WHEEL_COLORS[i];
-                segment.textContent = prize;
-                wheel.appendChild(segment);
-            });
-        }
-        
-        // ==================== helper ====================
-        function saveState() {
-            localStorage.setItem('wheel_balance', state.balance);
-            localStorage.setItem('wheel_tickets', state.tickets);
-            localStorage.setItem('wheel_ads', state.adsWatched);
-            localStorage.setItem('wheel_date', state.lastDate);
-            updateUI();
-        }
-        
-        function updateUI() {
-            document.getElementById('balanceDisplay').textContent = numberFormat(state.balance);
-            document.getElementById('adsWatched').textContent = state.adsWatched;
-            document.getElementById('ticketCount').textContent = state.tickets;
-            
-            const progress = (state.tickets % TICKETS_PER_SPIN) / TICKETS_PER_SPIN * 100;
-            document.getElementById('ticketProgress').style.width = progress + '%';
-            
-            const spinsAvailable = Math.floor(state.tickets / TICKETS_PER_SPIN);
-            document.getElementById('spinInfo').textContent = 
-                spinsAvailable + ' چرخوندن آماده | ۱۰ بلیط = ۱ چرخوندن';
-            
-            const btnWatchAd = document.getElementById('btnWatchAd');
-            const btnSpin = document.getElementById('btnSpin');
-            const dailyLimitMsg = document.getElementById('dailyLimitMsg');
-            
-            if (state.adsWatched >= DAILY_AD_LIMIT) {
-                btnWatchAd.disabled = true;
-                btnWatchAd.textContent = '⛔ سقف تبلیغات امروز پر شد';
-                dailyLimitMsg.style.display = 'block';
-            } else {
-                btnWatchAd.disabled = false;
-                btnWatchAd.textContent = '📺 دیدن تبلیغ + دریافت بلیط';
-                dailyLimitMsg.style.display = 'none';
-            }
-            
-            if (spinsAvailable > 0 && !state.isSpinning) {
-                btnSpin.disabled = false;
-                btnSpin.textContent = '🎰 چرخوندن چرخ (' + spinsAvailable + ' عدد)';
-            } else if (state.isSpinning) {
-                btnSpin.disabled = true;
-                btnSpin.textContent = '⏳ در حال چرخوندن...';
-            } else {
-                btnSpin.disabled = true;
-                btnSpin.textContent = '🔒 نیاز به ۱۰ بلیط';
-            }
-            
-            renderTicketIcons();
-        }
-        
-        function renderTicketIcons() {
-            const container = document.getElementById('ticketIcons');
-            const remaining = state.tickets % TICKETS_PER_SPIN;
-            let html = '';
-            
-            for (let i = 0; i < TICKETS_PER_SPIN; i++) {
-                if (i < remaining) {
-                    html += '<div class="ticket-icon">🎫</div>';
-                } else {
-                    html += '<div class="ticket-icon used">🎫</div>';
-                }
-            }
-            
-            container.innerHTML = html;
-        }
-        
-        function numberFormat(num) {
-            if (num >= 1000000) return (num/1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num/1000).toFixed(1) + 'K';
-            return num.toString();
-        }
-        
-        function showToast(msg) {
-            const existing = document.querySelector('.toast');
-            if (existing) existing.remove();
-            
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.textContent = msg;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2500);
-        }
-        
-        // ==================== دیدن تبلیغ با Giga Pub (جدید) ====================
-        async function watchAd() {
-            if (state.adsWatched >= DAILY_AD_LIMIT) {
-                showToast('⛔ سقف ۱۰۰ تبلیغ امروز پر شده!');
-                return;
-            }
-            
-            // چک کردن اینکه showGiga تعریف شده
-            if (typeof window.showGiga === 'undefined') {
-                showToast('⚠️ در حال آماده‌سازی تبلیغ... چند لحظه صبر کن');
-                // یک بار دیگه بعد از ۲ ثانیه چک کن
-                await new Promise(r => setTimeout(r, 2000));
-                if (typeof window.showGiga === 'undefined') {
-                    showToast('❌ خطا در اتصال به سرور تبلیغات');
-                    return;
-                }
-            }
-            
-            try {
-                // نمایش تبلیغ با Giga Pub
-                await window.showGiga();
-                
-                // اگر اینجا رسیدیم، یعنی تبلیغ با موفقیت دیده شده
-                state.adsWatched++;
-                state.tickets++;
-                saveState();
-                showToast('✅ +1 بلیط گرفتی! (' + state.tickets + ' بلیط)');
-                
-            } catch (error) {
-                console.log('Giga Pub error:', error);
-                showToast('❌ تبلیغ رو کامل ببین تا بلیط بگیری');
-            }
-        }
-        
-        // ==================== چرخوندن چرخ ====================
-        function spinWheel() {
-            const spinsAvailable = Math.floor(state.tickets / TICKETS_PER_SPIN);
-            
-            if (spinsAvailable <= 0) {
-                showToast('🔒 نیاز به ۱۰ بلیط داری!');
-                return;
-            }
-            
-            if (state.isSpinning) return;
-            
-            state.tickets -= TICKETS_PER_SPIN;
-            state.isSpinning = true;
-            updateUI();
-            
-            const randomIndex = Math.floor(Math.random() * WHEEL_PRIZES.length);
-            const prize = WHEEL_PRIZES[randomIndex];
-            const segmentAngle = 360 / WHEEL_PRIZES.length;
-            const targetAngle = 360 * 5 + (randomIndex * segmentAngle) + (segmentAngle / 2);
-            
-            const wheel = document.getElementById('wheel');
-            wheel.style.transform = `rotate(${targetAngle}deg)`;
-            
-            setTimeout(() => {
-                state.balance += prize;
-                state.isSpinning = false;
-                saveState();
-                
-                document.getElementById('prizeAmount').textContent = numberFormat(prize);
-                document.getElementById('prizeModal').classList.add('show');
-            }, 4000);
-        }
-        
-        function closePrizeModal() {
-            document.getElementById('prizeModal').classList.remove('show');
-            updateUI();
-        }
-        
-        // ==================== برداشت ====================
-        function openWithdraw() {
-            document.getElementById('withdrawBalance').textContent = numberFormat(state.balance);
-            document.getElementById('withdrawModal').classList.add('show');
-        }
-        
-        function submitWithdraw() {
-            const amount = parseInt(document.getElementById('withdrawAmount').value);
-            
-            if (!amount || amount < 1000) {
-                showToast('⚠️ حداقل برداشت ۱۰۰۰ سکه');
-                return;
-            }
-            
-            if (amount > state.balance) {
-                showToast('⚠️ موجودی کافی نیست');
-                return;
-            }
-            
-            state.balance -= amount;
-            document.getElementById('withdrawModal').classList.remove('show');
-            saveState();
-            showToast('✅ درخواست برداشت ' + numberFormat(amount) + ' سکه ثبت شد');
-        }
-        
-        // ==================== شروع ====================
-        buildWheel();
-        updateUI();
-        
-        console.log('🎰 چرخ شانس با Giga Pub آماده!');
-        console.log('📺 Product ID: 7188');
-        console.log('📊 سقف روزانه: ۱۰۰ تبلیغ');
-    </script>
+// 1. تبلیغ جایزه‌ای Monetag (rewarded)
+function watchRewardedAd(){
+  if (typeof show_11245827 === "function") {
+    show_11245827()
+      .then(() => {
+        addReward(10);
+        alert("✅ 10 سکه دریافت کردی 🎉");
+      })
+      .catch(() => {
+        alert("❌ تبلیغ نمایش داده نشد");
+      });
+  } else {
+    alert("❌ SDK Monetag بارگذاری نشده");
+  }
+}
 
+// 2. تبلیغ پاپ‌آپ Monetag (با پارامتر 'pop')
+function watchPopupAd(){
+  if (typeof show_11245827 === "function") {
+    show_11245827('pop')
+      .then(() => {
+        addReward(5);
+        alert("✅ 5 سکه دریافت کردی 🎉");
+      })
+      .catch(() => {
+        alert("❌ خطا در نمایش تبلیغ پاپ‌آپ");
+      });
+  } else {
+    alert("❌ SDK Monetag بارگذاری نشده");
+  }
+}
+
+// 3. تبلیغ Adexora
+function watchAdexoraAd(){
+  if (typeof window.showAdexora === "function") {
+    window.showAdexora()
+      .then(() => {
+        addReward(8);
+        alert("✅ 8 سکه دریافت کردی 🎉");
+      })
+      .catch((e) => {
+        console.error(e);
+        alert("❌ خطا در نمایش تبلیغ Adexora");
+      });
+  } else {
+    alert("❌ SDK Adexora بارگذاری نشده");
+  }
+}
+</script>
 </body>
 </html>
