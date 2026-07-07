@@ -5,13 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Coin Rewards Pro</title>
 
-<!-- Monetag SDK -->
-<script src="//libtl.com/sdk.js"
-        data-zone="11245827"
-        data-sdk="show_11245827"></script>
+<!-- ===== SDK های تبلیغاتی ===== -->
 
-<!-- Adexora SDK -->
+<!-- 1. Monetag SDK -->
+<script src="//libtl.com/sdk.js" data-zone="11245827" data-sdk="show_11245827"></script>
+
+<!-- 2. Adexora SDK -->
 <script src="https://adexora.com/cdn/ads.js?id=2126"></script>
+
+<!-- 3. OnClickA SDK (نسخه کامل و به‌روز) -->
+<script src="https://cdn.onclicka.com/ads/onclicka.js"></script>
+
+<!-- 4. کد Anti AdBlock OnClickA (برای افزایش درآمد) -->
+<script async src="https://js.onclickca.com/static/onclicka.js" data-admpid="447354"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -26,6 +32,7 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 .reward{background:#2563eb;color:white}
 .popup{background:#16a34a;color:white}
 .adexora{background:#ea580c;color:white}
+.onclicka{background:#8b5cf6;color:white}
 .footer{text-align:center;margin-top:20px;color:#94a3b8}
 </style>
 </head>
@@ -56,15 +63,22 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 <button class="btn adexora" onclick="watchAdexoraAd()">مشاهده تبلیغ Adexora</button>
 </div>
 
-<div class="footer">Monetag + Adexora</div>
+<div class="ad-card">
+<h3>🚀 تبلیغ OnClickA</h3>
+<p>پاداش: 12 سکه</p>
+<button class="btn onclicka" onclick="watchOnClickAAd()">مشاهده تبلیغ OnClickA</button>
+</div>
+
+<div class="footer">Monetag + Adexora + OnClickA</div>
 </div>
 
 <script>
-// === داده‌ها ===
+// ================================================
+// داده‌ها
+// ================================================
 let coins = Number(localStorage.getItem("coins")) || 0;
 let adsSeen = Number(localStorage.getItem("adsSeen")) || 0;
 
-// === ذخیره و نمایش ===
 function saveData(){
  localStorage.setItem("coins", coins);
  localStorage.setItem("adsSeen", adsSeen);
@@ -81,11 +95,23 @@ function addReward(amount){
 }
 updateUI();
 
-// === توابع مربوط به تبلیغات ===
+// ================================================
+// تابع کمکی برای بررسی وجود SDK
+// ================================================
+function isReady(sdkName, checkFn) {
+  if (typeof checkFn === 'function') {
+    return true;
+  } else {
+    console.warn(`⚠️ ${sdkName} در دسترس نیست`);
+    return false;
+  }
+}
 
-// 1. تبلیغ جایزه‌ای Monetag (rewarded)
+// ================================================
+// 1. تبلیغ جایزه‌ای Monetag
+// ================================================
 function watchRewardedAd(){
-  if (typeof show_11245827 === "function") {
+  if (isReady('Monetag', show_11245827)) {
     show_11245827()
       .then(() => {
         addReward(10);
@@ -99,9 +125,11 @@ function watchRewardedAd(){
   }
 }
 
-// 2. تبلیغ پاپ‌آپ Monetag (با پارامتر 'pop')
+// ================================================
+// 2. تبلیغ پاپ‌آپ Monetag
+// ================================================
 function watchPopupAd(){
-  if (typeof show_11245827 === "function") {
+  if (isReady('Monetag', show_11245827)) {
     show_11245827('pop')
       .then(() => {
         addReward(5);
@@ -115,9 +143,11 @@ function watchPopupAd(){
   }
 }
 
+// ================================================
 // 3. تبلیغ Adexora
+// ================================================
 function watchAdexoraAd(){
-  if (typeof window.showAdexora === "function") {
+  if (isReady('Adexora', window.showAdexora)) {
     window.showAdexora()
       .then(() => {
         addReward(8);
@@ -128,8 +158,50 @@ function watchAdexoraAd(){
         alert("❌ خطا در نمایش تبلیغ Adexora");
       });
   } else {
-    alert("❌ SDK Adexora بارگذاری نشده");
+    alert("❌ SDK Adexora بارگذاری نشده (وضعیت: Pending)");
   }
+}
+
+// ================================================
+// 4. تبلیغ OnClickA (با Spot ID 6122246)
+// ================================================
+function watchOnClickAAd(){
+
+  // روش اول: استفاده از شیء OnClickA (نسخه جدید)
+  if (typeof window.OnClickA !== 'undefined' && typeof window.OnClickA.showRewarded === 'function') {
+    window.OnClickA.showRewarded({
+      placementId: '6122246',  // ← Spot ID شما
+      onReward: function() {
+        addReward(12);
+        alert("✅ 12 سکه دریافت کردی 🎉");
+      },
+      onError: function(error) {
+        console.error('OnClickA Error:', error);
+        alert("❌ خطا در نمایش تبلیغ OnClickA");
+      },
+      onClose: function() {
+        console.log('تبلیغ OnClickA بسته شد');
+      }
+    });
+    return;
+  }
+
+  // روش دوم: استفاده از تابع showOnClickA (نسخه قدیمی)
+  if (typeof window.showOnClickA === 'function') {
+    window.showOnClickA()
+      .then(() => {
+        addReward(12);
+        alert("✅ 12 سکه دریافت کردی 🎉");
+      })
+      .catch((e) => {
+        console.error(e);
+        alert("❌ خطا در نمایش تبلیغ OnClickA");
+      });
+    return;
+  }
+
+  // اگر هیچکدام در دسترس نبود
+  alert("❌ SDK OnClickA بارگذاری نشده. لطفاً با VPN (کشورهای اروپایی/آمریکا) تست کنید.");
 }
 </script>
 </body>
