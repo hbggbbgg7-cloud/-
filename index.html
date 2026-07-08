@@ -12,14 +12,21 @@
 <!-- 2. Adexora SDK -->
 <script src="https://adexora.com/cdn/ads.js?id=2126"></script>
 
-<!-- 3. OnClickA SDK (نسخه کامل و به‌روز) -->
+<!-- 3. OnClickA SDK -->
 <script src="https://cdn.onclicka.com/ads/onclicka.js"></script>
 
-<!-- 4. کد Anti AdBlock OnClickA (برای افزایش درآمد) -->
+<!-- 4. Anti AdBlock OnClickA -->
 <script async src="https://js.onclickca.com/static/onclicka.js" data-admpid="447354"></script>
 
 <!-- 5. GigaPub SDK -->
 <script src="https://ad.gigapub.tech/script?id=7188"></script>
+
+<!-- ===== Telegram Mini Apps (طبق مستندات رسمی) ===== -->
+<!-- Step 1: اتصال Telegram WebApp (طبق مستندات core.telegram.org) -->
+<script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+
+<!-- Step 2: اتصال کتابخانه TelegramAdsController از RichInfo -->
+<script src="https://richinfo.co/richpartners/telegram/js/tg-ob.js"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -39,6 +46,11 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 .adexora{background:linear-gradient(135deg,#ea580c,#f97316)}
 .onclicka{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
 .gigapub{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.telegram-playable{background:linear-gradient(135deg,#6366f1,#818cf8)}
+.telegram-interstitial-video{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+.telegram-interstitial-banner{background:linear-gradient(135deg,#06b6d4,#22d3ee)}
+.telegram-embedded{background:linear-gradient(135deg,#10b981,#34d399)}
+.telegram-push{background:linear-gradient(135deg,#0088cc,#00aaff)}
 .reset-btn{background:linear-gradient(135deg,#dc2626,#ef4444);color:white;margin-top:10px}
 .footer{text-align:center;margin-top:20px;color:#94a3b8;font-size:14px}
 .coin-animation{display:inline-block;transition:transform 0.3s}
@@ -89,9 +101,40 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 <button class="btn gigapub" onclick="watchGigaPubAd()">مشاهده تبلیغ GigaPub</button>
 </div>
 
-<button class="btn reset-btn" onclick="resetData()">🔄 reset</button>
+<!-- ===== بخش تبلیغات تلگرام (RichInfo) با متدهای صحیح ===== -->
+<div class="ad-card">
+<h3>🎮 Telegram Playable Ads</h3>
+<p>پاداش: 20 سکه</p>
+<button class="btn telegram-playable" onclick="watchTelegramAd('playable')">مشاهده تبلیغ Playable</button>
+</div>
 
-<div class="footer">Monetag + Adexora + OnClickA + GigaPub</div>
+<div class="ad-card">
+<h3>📹 Telegram Interstitial Video</h3>
+<p>پاداش: 18 سکه</p>
+<button class="btn telegram-interstitial-video" onclick="watchTelegramAd('interstitial_video')">مشاهده تبلیغ ویدئویی</button>
+</div>
+
+<div class="ad-card">
+<h3>🖼️ Telegram Interstitial Banner</h3>
+<p>پاداش: 14 سکه</p>
+<button class="btn telegram-interstitial-banner" onclick="watchTelegramAd('interstitial_banner')">مشاهده تبلیغ بنری</button>
+</div>
+
+<div class="ad-card">
+<h3>📱 Telegram Embedded Banner</h3>
+<p>پاداش: 12 سکه</p>
+<button class="btn telegram-embedded" onclick="watchTelegramAd('embedded')">مشاهده تبلیغ توکار</button>
+</div>
+
+<div class="ad-card">
+<h3>🔔 Telegram Push-style</h3>
+<p>پاداش: 16 سکه</p>
+<button class="btn telegram-push" onclick="watchTelegramAd('push')">مشاهده تبلیغ پوش</button>
+</div>
+
+<button class="btn reset-btn" onclick="resetData()">🔄 Reset</button>
+
+<div class="footer">Monetag + Adexora + OnClickA + GigaPub + Telegram Ads (5 فرمت)</div>
 </div>
 
 <script>
@@ -162,12 +205,8 @@ function watchRewardedAd() {
     if (isReady('Monetag', show_11245827)) {
         try {
             show_11245827()
-                .then(() => {
-                    addReward(10);
-                })
-                .catch(() => {
-                    showNotification("❌ تبلیغ نمایش داده نشد");
-                });
+                .then(() => addReward(10))
+                .catch(() => showNotification("❌ تبلیغ نمایش داده نشد"));
         } catch (e) {
             showNotification("❌ خطا در نمایش تبلیغ");
         }
@@ -183,12 +222,8 @@ function watchPopupAd() {
     if (isReady('Monetag', show_11245827)) {
         try {
             show_11245827('pop')
-                .then(() => {
-                    addReward(5);
-                })
-                .catch(() => {
-                    showNotification("❌ خطا در نمایش تبلیغ پاپ‌آپ");
-                });
+                .then(() => addReward(5))
+                .catch(() => showNotification("❌ خطا در نمایش تبلیغ پاپ‌آپ"));
         } catch (e) {
             showNotification("❌ خطا در نمایش تبلیغ");
         }
@@ -204,9 +239,7 @@ function watchAdexoraAd() {
     if (isReady('Adexora', window.showAdexora)) {
         try {
             window.showAdexora()
-                .then(() => {
-                    addReward(8);
-                })
+                .then(() => addReward(8))
                 .catch((e) => {
                     console.error(e);
                     showNotification("❌ خطا در نمایش تبلیغ Adexora");
@@ -220,23 +253,17 @@ function watchAdexoraAd() {
 }
 
 // ================================================
-// 4. تبلیغ OnClickA (با Spot ID 6122246)
+// 4. تبلیغ OnClickA
 // ================================================
 function watchOnClickAAd() {
-    // روش اول: استفاده از شیء OnClickA (نسخه جدید)
     if (typeof window.OnClickA !== 'undefined' && typeof window.OnClickA.showRewarded === 'function') {
         try {
             window.OnClickA.showRewarded({
                 placementId: '6122246',
-                onReward: function() {
-                    addReward(12);
-                },
-                onError: function(error) {
+                onReward: () => addReward(12),
+                onError: (error) => {
                     console.error('OnClickA Error:', error);
                     showNotification("❌ خطا در نمایش تبلیغ OnClickA");
-                },
-                onClose: function() {
-                    console.log('تبلیغ OnClickA بسته شد');
                 }
             });
             return;
@@ -246,13 +273,10 @@ function watchOnClickAAd() {
         }
     }
 
-    // روش دوم: استفاده از تابع showOnClickA (نسخه قدیمی)
     if (typeof window.showOnClickA === 'function') {
         try {
             window.showOnClickA()
-                .then(() => {
-                    addReward(12);
-                })
+                .then(() => addReward(12))
                 .catch((e) => {
                     console.error(e);
                     showNotification("❌ خطا در نمایش تبلیغ OnClickA");
@@ -264,8 +288,7 @@ function watchOnClickAAd() {
         }
     }
 
-    // اگر هیچکدام در دسترس نبود
-    showNotification("❌ SDK OnClickA بارگذاری نشده. لطفاً با VPN تست کنید.");
+    showNotification("❌ SDK OnClickA بارگذاری نشده");
 }
 
 // ================================================
@@ -275,9 +298,7 @@ function watchGigaPubAd() {
     if (isReady('GigaPub', window.showGiga)) {
         try {
             window.showGiga()
-                .then(() => {
-                    addReward(15);
-                })
+                .then(() => addReward(15))
                 .catch((e) => {
                     console.error('GigaPub Error:', e);
                     showNotification("❌ خطا در نمایش تبلیغ GigaPub");
@@ -292,6 +313,87 @@ function watchGigaPubAd() {
 }
 
 // ================================================
+// 6. تبلیغات Telegram (RichInfo) - طبق مستندات رسمی
+// ================================================
+// Step 3: راه‌اندازی کنترلر (طبق مستندات)
+const richadsController = new window.TelegramAdsController();
+
+richadsController.initialize({
+    pubId: "1016530",   // شناسه ناشر شما
+    appId: "7994",      // شناسه اپلیکیشن شما
+    debug: false        // غیرفعال برای حالت تولید
+});
+
+// Step 4: توابع نمایش تبلیغات با متدهای صحیح
+function watchTelegramAd(type) {
+    // تنظیم پاداش بر اساس نوع تبلیغ
+    const rewards = {
+        'playable': 20,
+        'interstitial_video': 18,
+        'interstitial_banner': 14,
+        'embedded': 12,
+        'push': 16
+    };
+
+    const reward = rewards[type] || 15;
+    const adName = getTelegramAdName(type);
+
+    try {
+        let promise;
+
+        // انتخاب متد صحیح بر اساس نوع تبلیغ (طبق مستندات)
+        switch(type) {
+            case 'playable':
+                // Playable Ads - از متد interstitial_video استفاده می‌شود
+                promise = richadsController.triggerInterstitialVideo();
+                break;
+            case 'interstitial_video':
+                promise = richadsController.triggerInterstitialVideo();
+                break;
+            case 'interstitial_banner':
+                promise = richadsController.triggerInterstitialBanner();
+                break;
+            case 'embedded':
+                // Embedded Banner - فقط با initialize کار می‌کند
+                // برای این نوع، مستقیماً پاداش می‌دهیم
+                showNotification("ℹ️ تبلیغ Embedded به صورت خودکار نمایش داده می‌شود");
+                addReward(reward);
+                return;
+            case 'push':
+                promise = richadsController.triggerNativeNotification();
+                break;
+            default:
+                promise = richadsController.triggerInterstitialVideo();
+        }
+
+        // اجرای تبلیغ با مدیریت Promise
+        promise.then((result) => {
+            console.log(`✅ ${adName} نمایش داده شد:`, result);
+            addReward(reward);
+        }).catch((result) => {
+            console.error(`❌ خطا در نمایش ${adName}:`, result);
+            showNotification(`❌ خطا در نمایش تبلیغ ${adName}`);
+        });
+
+    } catch (e) {
+        console.error(e);
+        showNotification(`❌ خطا در نمایش تبلیغ ${adName}`);
+    }
+}
+
+// دریافت نام فارسی نوع تبلیغ
+function getTelegramAdName(type) {
+    const names = {
+        'playable': 'Playable',
+        'interstitial_video': 'ویدئویی',
+        'interstitial_banner': 'بنری',
+        'embedded': 'توکار',
+        'push': 'پوش'
+    };
+    return names[type] || type;
+}
+
+// ================================================
 // Reset data
 // ================================================
 function resetData() {
@@ -303,6 +405,14 @@ function resetData() {
         updateUI();
         showNotification("🔄 داده‌ها بازنشانی شدند");
     }
+}
+
+// ================================================
+// اطلاع‌رسانی به Telegram که Mini App آماده است
+// ================================================
+if (window.Telegram && window.Telegram.WebApp) {
+    window.Telegram.WebApp.ready();
+    console.log('✅ Telegram Mini App آماده شد');
 }
 </script>
 </body>
