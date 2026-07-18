@@ -21,6 +21,9 @@
 <!-- 5. GigaPub SDK -->
 <script src="https://ad.gigapub.tech/script?id=7188"></script>
 
+<!-- 6. TowerAds SDK -->
+<script src="https://uslads.com/sdk/tower-ads-v4.js"></script>
+
 <!-- ===== Telegram Mini Apps (طبق مستندات رسمی) ===== -->
 <!-- Step 1: اتصال Telegram WebApp (طبق مستندات core.telegram.org) -->
 <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
@@ -46,6 +49,7 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 .adexora{background:linear-gradient(135deg,#ea580c,#f97316)}
 .onclicka{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
 .gigapub{background:linear-gradient(135deg,#ec4899,#f472b6)}
+.towerads{background:linear-gradient(135deg,#0ea5e9,#38bdf8)}
 .telegram-playable{background:linear-gradient(135deg,#6366f1,#818cf8)}
 .telegram-interstitial-video{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
 .telegram-interstitial-banner{background:linear-gradient(135deg,#06b6d4,#22d3ee)}
@@ -101,6 +105,12 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 <button class="btn gigapub" onclick="watchGigaPubAd()">مشاهده تبلیغ GigaPub</button>
 </div>
 
+<div class="ad-card">
+<h3>🗼 تبلیغ جایزه‌ای TowerAds</h3>
+<p>پاداش: 10 سکه</p>
+<button class="btn towerads" onclick="watchTowerAd()">مشاهده تبلیغ TowerAds</button>
+</div>
+
 <!-- ===== بخش تبلیغات تلگرام (RichInfo) با متدهای صحیح ===== -->
 <div class="ad-card">
 <h3>🎮 Telegram Playable Ads</h3>
@@ -134,7 +144,7 @@ body{margin:0;padding:20px;font-family:tahoma,sans-serif;background:#0f172a;colo
 
 <button class="btn reset-btn" onclick="resetData()">🔄 Reset</button>
 
-<div class="footer">Monetag + Adexora + OnClickA + GigaPub + Telegram Ads (5 فرمت)</div>
+<div class="footer">Monetag + Adexora + OnClickA + GigaPub + TowerAds + Telegram Ads (5 فرمت)</div>
 </div>
 
 <script>
@@ -313,7 +323,50 @@ function watchGigaPubAd() {
 }
 
 // ================================================
-// 6. تبلیغات Telegram (RichInfo) - طبق مستندات رسمی
+// 6. تبلیغ جایزه‌ای TowerAds
+// ================================================
+let towerAdsInstance = null;
+
+function initTowerAds() {
+    if (typeof TowerAds === 'undefined') {
+        console.warn('⚠️ TowerAds SDK در دسترس نیست');
+        return null;
+    }
+    if (!towerAdsInstance) {
+        towerAdsInstance = new TowerAds({
+            apiKey: "13bff728acb4b3a96140f5a89610308d",
+            placementId: "plc_25529b316647a540",
+
+            onRewardEarned(reward) {
+                console.log("TowerAds reward:", reward);
+                addReward(10);
+            },
+
+            onError(error) {
+                console.error("TowerAds error:", error);
+                showNotification("❌ خطا در نمایش تبلیغ TowerAds");
+            }
+        });
+    }
+    return towerAdsInstance;
+}
+
+async function watchTowerAd() {
+    const ads = initTowerAds();
+    if (!ads) {
+        showNotification("❌ SDK TowerAds بارگذاری نشده");
+        return;
+    }
+    try {
+        await ads.loadAndShow();
+    } catch (error) {
+        console.error("TowerAds show error:", error);
+        showNotification("❌ خطا در نمایش تبلیغ TowerAds");
+    }
+}
+
+// ================================================
+// 7. تبلیغات Telegram (RichInfo) - طبق مستندات رسمی
 // ================================================
 // Step 3: راه‌اندازی کنترلر (طبق مستندات)
 const richadsController = new window.TelegramAdsController();
@@ -417,3 +470,4 @@ if (window.Telegram && window.Telegram.WebApp) {
 </script>
 </body>
 </html>
+
